@@ -36,8 +36,8 @@ def printStockData(instStockChart):
 # MySql Connection
 def getDbConnection():
 	ipAddress = '127.0.0.1'
-	userId = 'administrator'
-	userPassword = 'ADMINISTRATOR'
+	userId = 'root'
+	userPassword = 'root'
 	dataBase = 'stock'
 	connection = pymysql.connect(host = ipAddress, user = userId, password = userPassword, db = dataBase, charset = 'utf8')
 	return (connection)
@@ -131,6 +131,7 @@ for stockCode in stockCodeList.keys() :
 				VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
 	# 7. Execute Sql Command
 	insertStockData(connection, sqlCommandInsertStockData, stockCode, instStockChart)
+	break
 
 # 8. close connection
 connection.close()

@@ -36,25 +36,26 @@ def printStockData(instStockChart):
 		print("")
 
 # Get All Company Info
-def getAllStockCode():
-	instCpCodeMgr = win32com.client.Dispatch("CpUtil.CpCodeMgr")
-	codeList = instCpCodeMgr.GetStockListByMarket(1)
+def getInterestedStockCode():
 	stockCodeList = {}
-	for code in codeList :
-		companyName = instCpCodeMgr.CodeToName(code)
-		stockCodeList[code] = companyName
+	stockCodeList["A130960"] = "CJ E&M"
+	stockCodeList["A000660"] = "SK하이닉스"
+	stockCodeList["A000150"] = "두산"
+	stockCodeList["A015760"] = "한국전력"
+	stockCodeList["A011170"] = "롯데케미칼"
+	stockCodeList["A000030"] = "우리은행"
 	return stockCodeList
 
-def findRapidlyIncreasing() :
+def informInterestedStockPriceHourly() :
 	# 1. check connection check
 	connectionCheck()
 
 	# 2. Get All Stock Code
-	stockCodeList = getAllStockCode()
+	stockCodeList = getInterestedStockCode()
 
 	for stockCode in stockCodeList.keys() :
 		companyName = stockCodeList[stockCode]
-		print("[rapid increasing 분석]\n현재 시각 : %s,  분석 대상 : %s" % (str(datetime.now()), companyName))
+		print("[Inform current stock price]\n현재 시각 : %s,  분석 대상 : %s" % (str(datetime.now()), companyName))
 
 		# 3. get startPrice
 		instStockChart = getStockData(stockCode, 'D')
@@ -62,19 +63,17 @@ def findRapidlyIncreasing() :
 
 		# 4. get currentPrice
 		instStockChart = getStockData(stockCode, 'm')
-		currentPrice = instStockChart.GetDataValue(0, 0);
-
+		currentPrice = instStockChart.GetDataValue(0, 0)
 		# 5. calculate net change
 		increasedRatio = ((currentPrice - startPrice) / startPrice) * 100
 
-		# 6. check rapidly or not
-		if increasedRatio > 5 :
-			# Send Slack Message if rapidly increaded
-			message = "[rapidly increasing]\n %s, 상승 비율 : %f%% \n시가 : %d, 현재가 : %d" % (companyName, increasedRatio, startPrice, currentPrice)
-			sendMessageToSlack.sendMessage(message)
+		# 6. inform
+		message = "[Inform current stock price]\n %s, 상승 비율 : %f%% \n시가 : %d, 현재가 : %d" % (companyName, increasedRatio, startPrice, currentPrice)
+		print(message)
+		sendMessageToSlack.sendMessage(message)
 
-		# 1.5초 정도 재워서, 대신 증권 서버에 부하가 되지 않고, 1시간 정도 마다 분석할 수 있도록 함
-		time.sleep(1.5)
+	# 1800초 정도 재워서, 대신 증권 서버에 부하가 되지 않고, 1시간 정도 마다 분석할 수 있도록 함
+	time.sleep(1800)
 
 # did this until forever
 while True :
@@ -83,9 +82,9 @@ while True :
 	hour = int(currentTime.strftime('%H'))
 	minute = int(currentTime.strftime('%M'))
 
-	findRapidlyIncreasing()
-	# if hour >= 9 and hour r<= 15 :
-	# 	findRapidlyIncreasing()
-	# else :
-	# 	print("장이 종료 되어, 프로그램을 종료합니다.\n종료 시각 : %s " % currentTime)
-	# 	exit(1)
+	if hour >= 9 and hour <=  16:
+		informInterestedStockPriceHourly()
+	else :
+		print("장이 종료 되어, 프로그램을 종료합니다.\n종료 시각 : %s " % currentTime)
+		sendMessageToSlack.sendMessage("장이 종료 되어, 프로그램을 종료합니다.\n종료 시각 : %s " % currentTime)
+		exit(1)

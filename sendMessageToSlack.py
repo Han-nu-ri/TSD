@@ -2,7 +2,7 @@ import os
 from slackclient import SlackClient
 
 BOT_ID = "inform_bot"
-BOT_TOKEN = "xoxb-239480418918-S5qMohPJpkeafjbrD0dMwkJc"
+BOT_TOKEN = "xoxb-239480418918-VF6GMoNl0H4IdN1OpbVFSgF4"
 CHANNEL = "#general"
 
 # send message to the channel
@@ -14,4 +14,4 @@ def sendMessage(message):
 		"chat.postMessage",
 		channel = CHANNEL,
 		text = message
-)
+	)
